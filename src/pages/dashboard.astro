@@ -1,0 +1,198 @@
+---
+import Base from '../layouts/Base.astro';
+
+const navSidebar = [
+  { label: 'Beranda', href: '/' },
+  { label: 'Simulator Algoritma', href: '/simulator' },
+  { label: 'Dashboard Analytics & Metrik', href: '/dashboard', aktif: true },
+];
+
+const kolom = ['ID', 'Skenario Uji', 'Kategori', 'Kondisi Uji / Parameter', 'Ekspektasi Output', 'Status'];
+---
+
+<Base
+  title="Dashboard Analytics & Metrik — Toko Byte"
+  description="Audit eksekusi algoritma: benchmark bubble sort, perbandingan binary vs linear search, matriks verifikasi TC-01 s/d TC-10, dan jejak audit pointer."
+  aktif="dashboard"
+  mainClass="dashboard-main"
+>
+  <div class="dash">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="dash__side">
+      <span class="dash__side-label">Navigasi Ruang Kerja</span>
+      <nav class="dash__nav">
+        {navSidebar.map((n) => (
+          <a href={n.href} class:list={['dash__navlink', { 'is-active': n.aktif }]} aria-current={n.aktif ? 'page' : undefined}>
+            {n.label}
+          </a>
+        ))}
+      </nav>
+
+      <div class="dash__memcard">
+        <b>Active Struct Memory</b>
+        <span>10 Nodes · Heap 0x1A40</span>
+        <i class="dash__memdot"></i>
+      </div>
+    </aside>
+
+    <!-- ================= KONTEN ================= -->
+    <div class="dash__content">
+      <!-- Topbar -->
+      <div class="dash__topbar">
+        <span class="kv-inline"><b>Runtime:</b> Browser ES2022 · Heap simulasi kontigu</span>
+        <div class="dash__topbar-right">
+          <div class="dash__search">
+            <svg class="i"><use href="#i-search" /></svg>
+            <input type="text" id="cari-tc" placeholder="Pencarian cepat TC-…" autocomplete="off" />
+            <kbd class="mono">⌘K</kbd>
+          </div>
+          <span class="pill pill--naik"><span class="pill__dot"></span>RAM Stack: 10 Structs</span>
+        </div>
+      </div>
+
+      <!-- Judul + kontrol -->
+      <header class="dash__hero">
+        <div>
+          <span class="chip-live"><span class="pill__dot"></span>LIVE ANALYTICS · DAEMON</span>
+          <h1>Metrik Eksekusi &amp; Audit Validasi Sidang</h1>
+          <p class="mono dash__sub">PID: 0x48f2 · GCC 13.2 · POSIX r&gt;2B · Alamat Heap: 0x1A40 – 0x1A49</p>
+        </div>
+        <div class="dash__hero-actions">
+          <label class="lbl" for="dataset">Dataset</label>
+          <select id="dataset">
+            <option value="10">10 Produk (Struct)</option>
+            <option value="100">100 Produk (Struct)</option>
+          </select>
+          <button class="btn btn--primary" id="btn-audit"><svg class="i"><use href="#i-play" /></svg>Jalankan Audit Otomatis</button>
+        </div>
+      </header>
+
+      <!-- Kartu metrik -->
+      <section class="kpis">
+        <article class="kpi">
+          <header><span>Status Heap/Stack RAM</span><span class="pill pill--naik">ALIDASI AKTIF</span></header>
+          <div class="kpi__nilai" id="kpi-bytes">320<small>Bytes</small></div>
+          <p class="mono">10 × sizeof(Produk) · Heap 0x1A40 – 0x1A49</p>
+          <footer><svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg>Zero Leakage (0 B) · Struct</footer>
+        </article>
+
+        <article class="kpi">
+          <header><span>Bubble Sort Benchmark</span><span class="pill pill--lain mono">O(N²) PASS</span></header>
+          <div class="kpi__nilai" id="kpi-sort">–<small> Komp / – Swap</small></div>
+          <p class="mono">Waktu komputasi rata-rata <b id="kpi-sort-ms">–</b> ms (heap CPU)</p>
+          <footer><svg class="i" style="color:var(--tertiary)"><use href="#i-sort" /></svg>Stabil (in-place), tanpa alokasi baru</footer>
+        </article>
+
+        <article class="kpi">
+          <header><span>Binary Search vs Linear</span><span class="pill pill--lain mono">O(log N) OPT</span></header>
+          <div class="kpi__nilai" id="kpi-search">–<small> Step</small></div>
+          <p class="mono">Linear butuh <b id="kpi-linear">–</b> langkah pada N=10 data</p>
+          <footer><svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg>Terurut Ascending · log(10) ≈ 3.32</footer>
+        </article>
+
+        <article class="kpi">
+          <header><span>Pointer Integrity</span><span class="pill pill--naik">100% IDENTIK</span></header>
+          <div class="kpi__nilai" id="kpi-ptr">0<small> Kesalahan</small></div>
+          <p class="mono"><b>*ptrKeranjang</b> === katalog[i] — aliasing sinkron</p>
+          <footer><svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg>Mutasi via ptr, tanpa deep copy</footer>
+        </article>
+
+        <article class="kpi kpi--accent">
+          <header><span>Uji Kasus Sidang</span><span class="pill pill--naik" id="kpi-ratio">0 / 10</span></header>
+          <div class="kpi__nilai" id="kpi-lulus">0<small>% Lulus</small></div>
+          <p class="mono">Audit dijalankan: <b id="kpi-waktu">belum</b></p>
+          <footer><svg class="i" style="color:var(--primary)"><use href="#i-shield" /></svg>Matriks TC-01 s/d TC-10</footer>
+        </article>
+      </section>
+
+      <!-- Grafik + audit aliasing -->
+      <div class="dash__grid2">
+        <section class="panel">
+          <div class="panel__head">
+            <span class="panel__title"><svg class="i"><use href="#i-chart" /></svg>Analisis Kurva Asimtotik Algoritma</span>
+            <span class="panel__note">N = 10 elemen · skala log₁₀</span>
+          </div>
+          <p class="panel__desc">Perbandingan laju komputasi teoritis (sumbu log) terhadap titik hasil pengukuran nyata di Toko Byte.</p>
+          <div id="grafik"></div>
+          <div class="grafik__kaki">
+            <span><b class="mono">Struktur Data</b> Contiguous Array</span>
+            <span><b class="mono">Worst-Case Inversion</b> N(N−1)/2 = 45 swap</span>
+            <span><b class="mono">Search Optimal</b> ⌈log₂(10)⌉ = 4 split</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel__head">
+            <span class="panel__title"><svg class="i"><use href="#i-link" /></svg>Siklus Hidup Pointer &amp; Mutasi</span>
+            <span class="pill pill--naik">Zero-Copy Pass</span>
+          </div>
+          <p class="panel__desc">Visualisasi esak sel kompresi <code class="mono">keranjang[katalog[i]]</code>.</p>
+          <ol class="alur">
+            <li>
+              <span class="alur__no">1</span>
+              <div><b>Trigger User UI</b><p>Menekan tombol pada kartu produk — <span class="mono">id: 3, stok awal 20</span></p></div>
+            </li>
+            <li>
+              <span class="alur__no">2</span>
+              <div><b>Ekstraksi Pointer</b><p>Referensi memori diambil tanpa menyalin struct — <span class="mono">heap: 0x1A43</span></p></div>
+            </li>
+            <li>
+              <span class="alur__no">3</span>
+              <div><b>Aliasing Stok Otomatis</b><p id="alur-stok">Menunggu pemicu…</p></div>
+            </li>
+          </ol>
+          <div class="alur__foot">
+            <span>Heap Consistency Status: <b id="heap-status">0 Drain / 0 Default</b></span>
+          </div>
+        </section>
+      </div>
+
+      <!-- Matriks TC -->
+      <section class="panel dash__tc">
+        <div class="panel__head">
+          <span class="panel__title"><svg class="i"><use href="#i-shield" /></svg>Matriks Verifikasi &amp; Uji Kasus Sidang Skripsi</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="pill pill--naik" id="tc-badge">0 / 10 LULUS</span>
+            <button class="btn btn--outline btn--sm" id="btn-ulang-semua"><svg class="i"><use href="#i-refresh" /></svg>Jalankan Semua Ulang</button>
+            <button class="btn btn--primary btn--sm" id="btn-ekspor-json"><svg class="i"><use href="#i-download" /></svg>Ekspor Bukti (JSON)</button>
+          </div>
+        </div>
+        <p class="panel__desc">Bukti empiris terstruktur untuk evaluasi dosen penguji.</p>
+        <div class="table-wrap">
+          <table class="tc-table">
+            <thead>
+              <tr>{kolom.map((k) => <th>{k}</th>)}<th>Aksi</th></tr>
+            </thead>
+            <tbody id="tc-body"></tbody>
+          </table>
+        </div>
+        <p class="tc-empty mono" id="tc-kosong">Belum ada audit. Tekan “Jalankan Audit Otomatis”.</p>
+      </section>
+
+      <!-- Audit trail -->
+      <section class="panel">
+        <div class="panel__head">
+          <span class="panel__title"><svg class="i"><use href="#i-terminal" /></svg>Audit Trail Eksekusi Algoritma Terbaru</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="filter-trail" class="dash__filter">
+              <option value="">Semua Operasi (All Runs)</option>
+              <option value="BUBBLE_SORT">Bubble Sort</option>
+              <option value="BINARY_SEARCH">Binary Search</option>
+              <option value="LINEAR_SEARCH">Linear Search</option>
+              <option value="POINTER_MUTATION">Pointer Mutation</option>
+            </select>
+            <button class="btn btn--outline btn--sm" id="btn-ekspor-txt"><svg class="i"><use href="#i-download" /></svg>Unduh .TXT</button>
+          </div>
+        </div>
+        <p class="panel__desc">Rekam jejak setiap pemanggilan fungsi, pointer dereference, dan durasi komputasinya runtime.</p>
+        <div id="trail" class="trail">
+          <p class="tc-empty mono">Belum ada jejak audit.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import '../scripts/dashboard.js';
+</script>

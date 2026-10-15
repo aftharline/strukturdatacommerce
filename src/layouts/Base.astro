@@ -1,0 +1,154 @@
+---
+import '@fontsource-variable/plus-jakarta-sans';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  aktif?: 'beranda' | 'simulator' | 'dashboard';
+  /** Tampilkan tombol "Panduan Sidang" (hanya di halaman yang punya modal). */
+  adaPanduan?: boolean;
+  mainClass?: string;
+}
+
+const {
+  title,
+  description = 'Toko Byte — platform edukasi interaktif: Array of Struct, Pointer Aliasing, Bubble Sort, Linear & Binary Search dalam skenario e-commerce nyata.',
+  aktif = '',
+  adaPanduan = false,
+  mainClass = 'wrap',
+} = Astro.props;
+
+const nav = [
+  { href: '/', label: 'Beranda', key: 'beranda' },
+  { href: '/simulator', label: 'Simulator Algoritma', key: 'simulator' },
+  { href: '/dashboard', label: 'Dashboard Analytics', key: 'dashboard' },
+];
+
+const tahun = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <svg aria-hidden="true" style="display:none">
+      <symbol id="i-memory" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" /><path d="M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4" /></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5z" /><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v4H6.5A2.5 2.5 0 0 1 4 19.5z" /></symbol>
+      <symbol id="i-restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66" /><path d="M20 4v5h-5" /></symbol>
+      <symbol id="i-sort" viewBox="0 0 24 24"><path d="M4 7h10M4 12h6M4 17h3" /><path d="M17 10v8M17 18l-3-3M17 18l3-3" /></symbol>
+      <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M12 5l-6 6M12 5l6 6" /></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M12 19l-6-6M12 19l6-6" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5" /></symbol>
+      <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 9l3 3-3 3M13 15h4" /></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 21h18" /><path d="M6 21v-8M12 21V6M18 21v-5" /></symbol>
+      <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.5 11h9.5L20 7H6" /><circle cx="9.5" cy="20" r="1.4" /><circle cx="17" cy="20" r="1.4" /></symbol>
+      <symbol id="i-chip" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" /><rect x="9" y="9" width="6" height="6" rx="1" /></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V6a2 2 0 0 1 2-2h8" /></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" /></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></symbol>
+      <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5L21 20H3z" /><path d="M12 10v4M12 17.5h.01" /></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" /></symbol>
+      <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0" /><path d="M12 14l4-4" /><circle cx="12" cy="18" r="1.4" /></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" /><path d="M9 12l2 2 4-4" /></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M12 15l-4-4M12 15l4-4M4 19h16" /></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.4" /><path d="M4 20v-4.6h4.6" /><path d="M4 12A8 8 0 0 1 17.7 6.3L20 8.6" /><path d="M20 4v4.6h-4.6" /></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" /></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a4 4 0 0 0 5.7 0l2.3-2.3a4 4 0 0 0-5.7-5.7L11 6.4" /><path d="M14 11a4 4 0 0 0-5.7 0L6 13.3a4 4 0 0 0 5.7 5.7l1.3-1.3" /></symbol>
+    </svg>
+
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <span class="brand__mark">TB</span>
+          <span class="brand__name">Toko<b>Byte</b></span>
+          <span class="brand__tag">v1.0 · CS Edu</span>
+        </a>
+        <nav class="nav">
+          {nav.map((n) => (
+            <a href={n.href} aria-current={aktif === n.key ? 'page' : undefined} class:list={['nav__link', { 'is-active': aktif === n.key }]}>
+              {n.label}
+            </a>
+          ))}
+        </nav>
+        <div class="header-actions">
+          {adaPanduan && (
+            <button class="btn btn--outline btn--sm" id="btn-panduan">
+              <svg class="i"><use href="#i-book" /></svg>Panduan Sidang
+            </button>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <main class={mainClass}>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="footer-grid">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="brand__mark" style="width:28px;height:28px">TB</span>
+              <span class="brand__name">Toko<b>Byte</b></span>
+            </div>
+            <p style="margin:0 0 16px">
+              Belanja sambil melihat algoritmanya bekerja. Praktikum Struktur Data &amp; Algoritma — Array of Struct,
+              Pointer Aliasing, Bubble Sort, Linear &amp; Binary Search.
+            </p>
+            <span class="mono" style="font-size:11px;color:var(--outline)">Tugas Kuliah · Array · Pointer · Struct</span>
+          </div>
+          <div>
+            <h4>Algoritma Inti</h4>
+            <ul>
+              <li><a href="/simulator">Bubble Sort O(N²)</a></li>
+              <li><a href="/simulator">Linear Search O(N)</a></li>
+              <li><a href="/simulator">Binary Search O(log N)</a></li>
+              <li><a href="/simulator">Auto-sort prasyarat</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Modul Sidang</h4>
+            <ul>
+              <li><a href="/#alur">Alur Belajar</a></li>
+              <li>Panel Memori 0x1A40</li>
+              <li>Aliasing pointer keranjang</li>
+              <li><a href="/dashboard">Audit &amp; matriks TC</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Identitas Pengembang</h4>
+            <div class="kv-list">
+              <div><span>Nama</span><b>Muhammad Abdee Nur Fatih</b></div>
+              <div><span>NIM</span><b>25050974063</b></div>
+              <div><span>Matkul</span><b>Struktur Data</b></div>
+              <div><span>Kelas</span><b>2025B</b></div>
+            </div>
+          </div>
+          <div>
+            <h4>Sistem &amp; Lingkungan</h4>
+            <div class="kv-list">
+              <div><span>Runtime</span><b>Browser ES2022</b></div>
+              <div><span>Heap Target</span><b>0x1A40_HEAP</b></div>
+              <div><span>Status Node</span><b id="foot-node">0 Ptr</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© {tahun} Toko Byte · Muhammad Abdee Nur Fatih (25050974063).</span>
+          <span class="mono">KOMPLEKSITAS: O(1) | STRUKTUR: STATIS DI MEMORI</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

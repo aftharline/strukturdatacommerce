@@ -1,0 +1,216 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Simulator Algoritma — Toko Byte"
+  description="Workbench interaktif: bubble sort, linear search, binary search, panel memori 0x1A40, dan pointer aliasing keranjang."
+  aktif="simulator"
+  adaPanduan
+>
+  <!-- ============ STATUS BAR ============ -->
+  <div class="statusbar">
+    <div class="statusbar__group">
+      <span class="chip-runtime"><svg class="i"><use href="#i-memory" /></svg>CS201 MEMORY RUNTIME</span>
+      <span class="statusbar__kv">Struktur Data: <code class="mono">Produk katalog[10]</code></span>
+      <span class="statusbar__kv">Status Array:</span>
+      <span class="pill pill--acak" id="pill-urut"><span class="pill__dot"></span>Belum Terurut (Acak)</span>
+    </div>
+    <div class="statusbar__actions">
+      <a class="btn btn--outline" href="/Toko-Byte-Guidebook.pdf" download="Toko-Byte-Guidebook.pdf">
+        <svg class="i"><use href="#i-download" /></svg>Unduh Guidebook
+      </a>
+      <button class="btn btn--outline" id="btn-panduan-2">
+        <svg class="i"><use href="#i-book" /></svg>Panduan Sidang Dosen
+      </button>
+      <button class="btn btn--danger" id="btn-reset">
+        <svg class="i"><use href="#i-restart" /></svg>Reset Data (TC-10)
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ CONTROLS ============ -->
+  <section class="controls">
+    <div class="panel">
+      <div class="panel__head">
+        <span class="panel__title"><svg class="i"><use href="#i-sort" /></svg>Bubble Sort Visualizer</span>
+        <span class="panel__note">Kompleksitas: O(N²) worst | O(N) best</span>
+      </div>
+      <div class="field-row field-row--sort">
+        <div>
+          <label class="lbl" for="sort-kunci">Kunci Sorting (Key)</label>
+          <select id="sort-kunci">
+            <option value="harga">Harga (IDR)</option>
+            <option value="nama">Nama Produk (Alfabetik)</option>
+            <option value="rating">Rating Pengguna (★)</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl" for="sort-speed">Kecepatan Langkah</label>
+          <div class="speed-row">
+            <input type="range" id="sort-speed" min="0" max="4" step="1" value="2" />
+            <span class="mono" id="sort-speed-label">400ms</span>
+          </div>
+        </div>
+        <div class="sort-buttons">
+          <button class="btn btn--primary" id="btn-naik"><svg class="i"><use href="#i-up" /></svg>Naik (Asc)</button>
+          <button class="btn" id="btn-turun"><svg class="i"><use href="#i-down" /></svg>Turun (Desc)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel__head">
+        <span class="panel__title"><svg class="i"><use href="#i-search" /></svg>Searching Algoritma</span>
+        <span class="panel__note">Linear O(N) • Binary O(log N)</span>
+      </div>
+      <div class="search-row">
+        <div class="field">
+          <label class="lbl" for="search-target">Target Nilai</label>
+          <input type="text" id="search-target" placeholder="Nama produk (linear) atau harga (binary)…" autocomplete="off" />
+        </div>
+        <button class="btn" id="btn-linear">Linear (Nama)</button>
+        <button class="btn btn--ok" id="btn-binary">Binary (Harga)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BANNER TC-08 ============ -->
+  <div class="banner" id="banner">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <svg class="i" style="color:#d97706;width:24px;height:24px"><use href="#i-warn" /></svg>
+      <div>
+        <strong>Perhatian: Prasyarat Binary Search (TC-08)</strong>
+        <p>Array belum terurut berdasarkan harga. Binary Search (Divide &amp; Conquer) wajib menerima array monoton —
+          sistem menjalankan auto-sort harga naik lebih dahulu, dan kejadian itu tercatat di log.</p>
+      </div>
+    </div>
+    <button class="btn btn--ghost" id="btn-tutup-banner"><svg class="i"><use href="#i-close" /></svg></button>
+  </div>
+
+  <!-- ============ WORKSPACE 3 KOLOM ============ -->
+  <div class="workspace">
+    <!-- KOLOM KIRI: MEMORI + POINTER -->
+    <div class="col">
+      <section class="panel" id="memori">
+        <div class="panel__head">
+          <span class="panel__title"><svg class="i"><use href="#i-chip" /></svg>Slot RAM (0x1A40 – 0x1A49)</span>
+          <span class="panel__note" style="color:var(--tertiary);font-weight:700">10 Structs</span>
+        </div>
+        <p class="panel__desc">
+          Alamat heap simulasi <code class="mono">0x1A40</code> … <code class="mono">0x1A49</code>. Baris diurutkan berdasarkan
+          alamat fisik; nilai <code class="mono">katalog[n]</code> berubah posisi saat bubble sort menukar isi slot.
+        </p>
+        <div class="ram-list" id="ram-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <span class="panel__title" style="color:var(--secondary)"><svg class="i"><use href="#i-cart" /></svg>Pointer Keranjang (*ptr)</span>
+          <span class="tag" style="background:var(--secondary-fixed);color:#0f0069;font-weight:600">Aliasing</span>
+        </div>
+        <p class="panel__desc">
+          <code class="mono">keranjang[i]</code> menyimpan <b>referensi</b>, bukan salinan. Ubah stok lewat
+          <code class="mono">ptr-&gt;stok</code> di sini dan kartu katalog ikut berubah seketika.
+        </p>
+        <div id="cart-list"></div>
+        <div class="cart-total">
+          <span>Total Nilai Pointer:</span><b id="cart-total">Rp 0</b>
+        </div>
+      </section>
+    </div>
+
+    <!-- KOLOM TENGAH: KATALOG -->
+    <div class="col">
+      <section class="panel" id="katalog">
+        <div class="katalog-head">
+          <div>
+            <h2>Katalog Produk Toko Byte</h2>
+            <p>10 struct. Urutan kartu = urutan indeks pada array <code class="mono">katalog[0..9]</code>.</p>
+          </div>
+          <div class="legend">
+            <span class="lg-compare"><i></i>Banding</span>
+            <span class="lg-swap"><i></i>Tukar</span>
+            <span class="lg-found"><i></i>Ditemukan</span>
+          </div>
+        </div>
+        <div class="grid" id="grid"></div>
+      </section>
+    </div>
+
+    <!-- KOLOM KANAN: METRIK + TERMINAL -->
+    <div class="col">
+      <section class="panel">
+        <div class="panel__head">
+          <span class="panel__title"><svg class="i"><use href="#i-chart" /></svg>Analisis &amp; Benchmark</span>
+          <span class="panel__note">Realtime</span>
+        </div>
+        <div class="metrik">
+          <div class="metrik__box"><small>TOTAL PASS</small><b class="m-pass" id="m-pass">0</b></div>
+          <div class="metrik__box"><small>KOMPARASI</small><b class="m-cmp" id="m-cmp">0</b></div>
+          <div class="metrik__box"><small>PERTUKARAN</small><b class="m-swap" id="m-swap">0</b></div>
+          <div class="metrik__box"><small>WAKTU ALGORITMA</small><b class="m-time" id="m-time">0ms</b></div>
+        </div>
+      </section>
+
+      <section class="panel terminal" id="terminal-panel">
+        <div class="panel__head">
+          <span class="panel__title"><svg class="i" style="color:var(--on-surface-variant)"><use href="#i-terminal" /></svg>Execution Trace Log</span>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn--ghost" id="btn-salin" title="Salin log"><svg class="i"><use href="#i-copy" /></svg></button>
+            <button class="btn btn--ghost" id="btn-bersihkan" title="Bersihkan log"><svg class="i"><use href="#i-trash" /></svg></button>
+          </div>
+        </div>
+        <div class="terminal__bar">
+          <span>STDOUT // Execution Trace</span><span style="color:var(--tertiary);font-weight:700" id="log-status">READY</span>
+        </div>
+        <div class="terminal__out" id="log" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="modal-judul">
+      <div class="modal__head">
+        <h3 id="modal-judul"><svg class="i" style="vertical-align:-4px"><use href="#i-book" /></svg> Panduan Sidang Dosen Penguji</h3>
+        <button class="btn btn--ghost" id="btn-tutup-modal"><svg class="i"><use href="#i-close" /></svg></button>
+      </div>
+      <div class="modal__body">
+        <section>
+          <h4>1. Pembuktian Pointer &amp; Aliasing (FR-03 / TC-09)</h4>
+          <p>Tekan <b>+ Keranjang</b> pada kartu produk: objek <b>tidak disalin</b>, keranjang hanya menyimpan pointer
+            <code>Produk *ptr</code> ke alamat heap. Tekan <b>−</b>/<b>+</b> stok di panel keranjang dan kartu katalog
+            berubah seketika — satu alamat, dua tampilan.</p>
+        </section>
+        <section>
+          <h4>2. Prasyarat Binary Search (FR-06 / TC-08)</h4>
+          <p>Binary Search memakai <i>Divide &amp; Conquer</i> dengan <i>low</i>, <i>high</i>, <i>mid</i> — logged di setiap
+            iterasi. Prasyaratnya array monoton. Bila array acak, sistem auto-sort dulu dan mencatat kejadiannya di log.</p>
+        </section>
+        <section>
+          <h4>3. Bubble Sort &amp; pemetaan swap</h4>
+          <p>Setiap perbandingan indeks <code>idx[i]</code> dan <code>idx[i+1]</code> di-log lengkap; kartu berubah amber
+            (banding) lalu rose (tukar). Ringkasan akhir menyebut jumlah pass, perbandingan, dan pertukaran.</p>
+        </section>
+        <div class="tc-list">
+          <strong>Daftar Test Case (100% lulus — `npm test`):</strong>
+          <ul>
+            <li>✔ TC-01: 10 struct, 10 alamat berbeda.</li>
+            <li>✔ TC-02: Bubble sort harga naik + ringkasan.</li>
+            <li>✔ TC-03: Bubble sort harga turun.</li>
+            <li>✔ TC-04/05: Linear search nama ada &amp; tidak ada.</li>
+            <li>✔ TC-06/07: Binary search ada (≤4 iterasi) &amp; tidak ada.</li>
+            <li>✔ TC-08: Auto-sort saat data belum terurut.</li>
+            <li>✔ TC-09: Aliasing stok lewat pointer.</li>
+            <li>✔ TC-10: Reset ke kondisi awal.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal__foot"><button class="btn btn--primary" id="btn-tutup-modal-2">Tutup Panduan</button></div>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import '../scripts/app.js';
+</script>

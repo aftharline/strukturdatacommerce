@@ -1,0 +1,343 @@
+---
+import Base from '../layouts/Base.astro';
+
+const stats = [
+  { nilai: '10', judul: 'Produk Terpetakan di RAM', sub: 'Memori kontigu 0x1A40 – 0x1A49', warna: 'var(--primary)' },
+  { nilai: 'O(N²)', judul: 'Bubble Sort Trace Visual', sub: 'Pointer perbandingan i & i+1 aktif', warna: 'var(--secondary)' },
+  { nilai: '≤ 4 Iterasi', judul: 'Binary Search O(log N)', sub: 'Pencarian tepat dari 10 data acak', warna: 'var(--tertiary)' },
+  { nilai: '< 16ms', judul: 'Waktu Komputasi CPU', sub: 'Benchmark performa browser instan', warna: 'var(--on-surface)' },
+];
+
+const memory = [
+  { addr: '0x1A40 [0]', nama: 'Mouse Ergonomis', stok: 12 },
+  { addr: '0x1A41 [1]', nama: 'Monitor 24 Inch', stok: 5 },
+  { addr: '0x1A42 [2]', nama: 'Keyboard Mekanikal', stok: 8, aktif: true },
+  { addr: '0x1A43 [3]', nama: 'USB Hub 7-Port', stok: 20 },
+];
+
+const testCases = [
+  { id: 'TC-01', teks: '10 struct, 10 alamat berbeda' },
+  { id: 'TC-02', teks: 'Bubble sort harga naik' },
+  { id: 'TC-03', teks: 'Bubble sort harga turun' },
+  { id: 'TC-04', teks: 'Linear search nama ada' },
+  { id: 'TC-05', teks: 'Linear search nama tak ada' },
+  { id: 'TC-06', teks: 'Binary search ≤ 4 iterasi' },
+  { id: 'TC-07', teks: 'Binary search tak ada' },
+  { id: 'TC-08', teks: 'Auto-sort bila data acak' },
+  { id: 'TC-09', teks: 'Aliasing stok via pointer' },
+  { id: 'TC-10', teks: 'Reset ke kondisi awal' },
+];
+
+const kodeC = `typedef struct {
+    int id;
+    char nama[32];
+    int harga;
+    int stok;
+} Produk;
+
+// Alokasi Statis Contiguous
+Produk katalog[MAX_PRODUK];
+
+// Pass-by-pointer: mutasi stok langsung
+void kurangiStok(Produk *ptr, int qty) {
+    ptr->stok -= qty;   // TC-09 Aliasing
+}`;
+
+const kodeJs = `// Emulasi struct: array of object + alamat simulasi
+const katalog = INITIAL.map((p, i) => ({
+    ...p,
+    alamat: 0x1A40 + i      // baseAddr + i * stride
+}));
+
+// Keranjang menyimpan REFERENCE, bukan salinan
+function kurangiStok(ref, qty) {
+    ref.stok -= qty;          // master ikut berubah
+    logger.log("TC-09 PASS");
+}`;
+---
+
+<Base
+  title="Toko Byte — Belanja Sambil Melihat Algoritmanya Bekerja"
+  description="Platform e-commerce edukatif: array of struct, pointer aliasing, bubble sort, linear & binary search dengan log per langkah."
+  aktif="beranda"
+>
+  <div class="glow" aria-hidden="true"></div>
+
+  <!-- ============ 1. HERO ============ -->
+  <section class="hero">
+    <span class="eyebrow">
+      <span class="eyebrow__dot"></span>
+      E-Commerce Edukatif Berbasis Struktur Data C &amp; JS
+      <span class="eyebrow__tag">TC-10 Ready</span>
+    </span>
+
+    <h1 class="hero__title">
+      Belanja Realistis, Saksikan <span class="accent">Algoritma Bekerja</span> Langkah demi Langkah
+    </h1>
+
+    <p class="hero__sub">
+      Platform interaktif untuk mahasiswa dan dosen ilmu komputer. Buktikan pemahaman Array of Struct, Pointer Aliasing,
+      Bubble Sort, hingga Binary Search secara visual dalam skenario e-commerce nyata.
+    </p>
+
+    <div class="hero__cta">
+      <a class="btn btn--lg btn--primary" href="/simulator">Buka Simulator Interaktif <svg class="i"><use href="#i-link" /></svg></a>
+      <a class="btn btn--lg btn--outline" href="/dashboard"><svg class="i" style="color:var(--primary-container)"><use href="#i-chart" /></svg>Eksplor Dashboard Metrik</a>
+      <a class="btn btn--lg btn--outline" href="/Toko-Byte-Guidebook.pdf" download="Toko-Byte-Guidebook.pdf"><svg class="i"><use href="#i-download" /></svg>Unduh Guidebook (PDF)</a>
+    </div>
+
+    <a class="pill-capsule" href="#test-cases">
+      <svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg>
+      Checklist Sidang 100% Pass (TC-01 s/d TC-10 tervalidasi)
+    </a>
+
+    <!-- Browser mockup -->
+    <div class="mockup">
+      <div class="mockup__chrome">
+        <span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span>
+        <span class="mockup__url">tokobyte://runtime/memory-visualizer.c</span>
+        <span class="mockup__status"><span class="pill__dot" style="background:var(--tertiary)"></span> Stack Heap Synced</span>
+        <span class="mockup__addr">ADDR: 0x1A42</span>
+      </div>
+
+      <div class="mockup__body">
+        <div class="mockup__card">
+          <div class="mockup__photo">
+            <img src="/images/keyboard-mechanical.jpg" alt="Keyboard mekanikal dengan backlight RGB" loading="lazy" width="1200" height="900" />
+            <span class="mockup__photo-id">ID: #KB-03</span>
+            <span class="mockup__photo-addr">Mem Node: 0x1A42</span>
+          </div>
+          <h3>Keyboard Mekanikal</h3>
+          <p class="mockup__meta">RGB Hot-swappable • Red Linear Switch</p>
+          <div class="mockup__price">Rp 650.000</div>
+          <div class="mockup__link">
+            <span><svg class="i"><use href="#i-refresh" /></svg>Stok Terikat (RAM)</span>
+            <span><code class="mono">katalog[2].stok =</code> <b id="demo-stok">8 Unit</b></span>
+          </div>
+          <p class="credit">Foto: SolarMainframe · Wikimedia Commons (CC BY-SA 4.0)</p>
+        </div>
+
+        <div class="mockup__bridge">
+          <span class="chip-ptr">*ptr_keranjang</span>
+          <svg class="i mockup__arrow"><use href="#i-down" /></svg>
+          <span class="mockup__bridge-text">Pointer Aliasing<br /><b>Dereference O(1)</b></span>
+        </div>
+
+        <div class="mockup__mem">
+          <div class="mockup__mem-head">
+            <span>Physical Memory Map (Contiguous)</span>
+            <span class="mono" style="color:var(--tertiary)">sizeof(Produk) = 32B</span>
+          </div>
+          <div class="mockup__mem-list">
+            {memory.map((m) => (
+              <div class:list={['memrow', { 'is-aktif': m.aktif }]}>
+                {m.aktif && <span class="memrow__pulse"></span>}
+                <span class="memrow__addr">{m.addr}</span>
+                <span class="memrow__nama">{m.nama}</span>
+                <span class="memrow__stok">stok: {String(m.stok).padStart(2, '0')}</span>
+              </div>
+            ))}
+          </div>
+          <div class="mockup__term">
+            <span class="mockup__term-head"><svg class="i" style="width:14px;height:14px"><use href="#i-terminal" /></svg>C-Runtime Console Output</span>
+            <div class="mockup__term-cmd mono">$ struct Produk *target = &amp;katalog[2];</div>
+            <div class="mockup__term-out mono">&gt; Verified: target-&gt;stok changed (Pass TC-09).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. STATS ============ -->
+  <section class="stats">
+    {stats.map((s) => (
+      <div class="stats__item">
+        <div class="stats__nilai" style={`color:${s.warna}`}>{s.nilai}</div>
+        <div class="stats__judul">{s.judul}</div>
+        <p class="stats__sub mono">{s.sub}</p>
+      </div>
+    ))}
+  </section>
+
+  <!-- ============ 3. BENTO ============ -->
+  <section class="section" id="alur">
+    <header class="section__head">
+      <span class="section__eyebrow">Arsitektur Pembelajaran Mendalam</span>
+      <h2>Bukan Sekadar Belanja. Ini Lab Struktur Data Berjalan.</h2>
+      <p>Setiap klik di keranjang dan kolom pencarian memicu representasi matematis yang terhubung langsung ke konsep bahasa C tingkat lanjut.</p>
+    </header>
+
+    <div class="bento">
+      <article class="bento__card bento__card--7">
+        <div class="bento__top">
+          <span class="bento__tag" style="background:var(--primary-fixed);color:#00174b"><svg class="i" style="width:16px;height:16px"><use href="#i-memory" /></svg>Memory Layout</span>
+          <span class="mono bento__tc">TC-01, TC-02</span>
+        </div>
+        <h3>Array of Struct Transparan</h3>
+        <p>Simulasi blok memori fisik kontigu <code class="mono">0x1A40</code> – <code class="mono">0x1A49</code>. Setiap perubahan pada struct dipetakan tanpa abstraksi yang disembunyikan.</p>
+        <div class="memgrid">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div class:list={['memgrid__cell', { 'is-aktif': i === 2 }]}>
+              <span class="mono">0x{(0x1a40 + i).toString(16).toUpperCase()}</span>
+              <b>prod[{i}]</b>
+              <small>{i === 2 ? 'Active Node' : '32 Bytes'}</small>
+            </div>
+          ))}
+        </div>
+        <div class="bento__foot"><span class="mono">BaseAddr + (i × sizeof(Produk))</span><svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg></div>
+      </article>
+
+      <article class="bento__card bento__card--5">
+        <div class="bento__top">
+          <span class="bento__tag" style="background:var(--secondary-fixed);color:#0f0069"><svg class="i" style="width:16px;height:16px"><use href="#i-link" /></svg>Zero-Copy Pointer</span>
+          <span class="mono bento__tc" style="color:var(--secondary)">TC-09</span>
+        </div>
+        <h3>Pointer Aliasing Nyata</h3>
+        <p>Modifikasi stok di keranjang langsung memperbarui master memory address tanpa duplikasi objek data.</p>
+        <div class="alias">
+          <div class="alias__row"><span class="mono">Cart Item Ref:</span><b class="mono">Produk *item = &amp;katalog[2];</b></div>
+          <div class="alias__arrow"><svg class="i" style="color:var(--secondary)"><use href="#i-refresh" /></svg></div>
+          <div class="alias__row"><span class="mono">Operasi:</span><b class="mono">item-&gt;stok -= 1;</b></div>
+        </div>
+        <div class="bento__foot"><span class="mono">Validasi mutasi objek tunggal</span><b class="mono" style="color:var(--tertiary)">PASS 100%</b></div>
+      </article>
+
+      <article class="bento__card bento__card--6">
+        <div class="bento__top">
+          <span class="bento__tag"><svg class="i" style="width:16px;height:16px"><use href="#i-sort" /></svg>Sorting Engine</span>
+          <span class="mono bento__tc">TC-02, TC-03</span>
+        </div>
+        <h3>Visualisasi Bubble Sort O(N²)</h3>
+        <p>Pantau pointer perbandingan <code class="mono">i</code> dan <code class="mono">i+1</code> bergerak saat mengurutkan harga. Hitung counter perbandingan versus pertukaran secara presisi.</p>
+        <div class="bars">
+          {[
+            { h: 45, label: '45k' },
+            { h: 85, label: '85k', ptr: 'i' },
+            { h: 60, label: '60k', ptr: 'i+1', swap: true },
+            { h: 30, label: '30k' },
+            { h: 95, label: '95k ✓', ok: true },
+          ].map((b) => (
+            <div
+              class:list={['bars__bar', { 'is-swap': b.swap, 'is-ok': b.ok, 'is-ptr': b.ptr === 'i' }]}
+              style={`height:${b.h}%`}
+            >
+              <span>{b.label}</span>
+              {b.ptr && <em>{b.ptr}</em>}
+            </div>
+          ))}
+        </div>
+        <div class="bars__note mono"><span>Swapping: 85k &gt; 60k ? True</span><b>Trigger Swap()</b></div>
+        <div class="bento__foot"><span class="mono">Worst case: n(n−1)/2 = 45 perbandingan</span></div>
+      </article>
+
+      <article class="bento__card bento__card--6">
+        <div class="bento__top">
+          <span class="bento__tag" style="background:#d7f5e6;color:#002114"><svg class="i" style="width:16px;height:16px"><use href="#i-search" /></svg>Search Benchmark</span>
+          <span class="mono bento__tc">TC-06, TC-07</span>
+        </div>
+        <h3>Binary Search O(log N) vs Linear</h3>
+        <p>Saksikan indeks <code class="mono">low</code>, <code class="mono">mid</code>, <code class="mono">high</code> membagi ruang pencarian menjadi setengah tiap iterasi.</p>
+        <div class="cuts">
+          <div class="cuts__row"><span class="mono">Iterasi #1: range [0..9]</span><span class="chip mono">mid = 4</span><span class="mono">eliminasi 50%</span></div>
+          <div class="cuts__track"><span style="width:50%"></span></div>
+          <div class="cuts__row"><span class="mono">Iterasi #2: range [5..6]</span><span class="chip chip--found mono">mid = 5 [DITEMUKAN]</span><span class="mono" style="color:var(--tertiary);font-weight:700">≤ 4 langkah!</span></div>
+          <div class="cuts__track cuts__track--ok"><span style="width:25%"></span></div>
+        </div>
+        <div class="bento__foot"><span class="mono">Efisiensi pencarian</span><b class="mono" style="color:var(--tertiary)">2–5× lebih cepat dari Linear</b></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ 4. C <-> JS ============ -->
+  <section class="section" id="test-cases">
+    <div class="codeblock">
+      <header class="section__head section__head--left">
+        <span class="section__eyebrow" style="color:var(--tertiary)">Kesiapan Sidang &amp; Praktikum</span>
+        <h2>Pemetaan Konsep C ke JavaScript yang Terjeli</h2>
+        <p>Dosen penguji kerap bertanya: “Bagaimana JavaScript mensimulasikan pointer C secara akurat?” Korespondensi 1-to-1 yang tahan uji saat sidang.</p>
+      </header>
+
+      <div class="codeblock__cols">
+        <div class="codeside">
+          <div class="codeside__head"><span class="dot dot--b"></span>C Standard (CS201 ANSI C)<span class="mono codeside__file">toko_byte.c</span></div>
+          <pre class="code"><code>{kodeC}</code></pre>
+          <div class="codeside__foot"><svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg>Manipulasi pointer langsung <code>*ptr</code></div>
+        </div>
+        <div class="codeside">
+          <div class="codeside__head"><span class="dot dot--g"></span>JavaScript Simulator Engine<span class="mono codeside__file">engine.js</span></div>
+          <pre class="code"><code>{kodeJs}</code></pre>
+          <div class="codeside__foot"><svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg>Reference semantik ekuivalen pointer</div>
+        </div>
+      </div>
+
+      <div class="tcmatrix">
+        <div class="tcmatrix__head">
+          <h3>Test Case Readiness Checklist</h3>
+          <span class="pill pill--naik">10/10 PASS</span>
+          <span class="mono tcmatrix__note">Diverifikasi otomatis oleh <code>npm test</code> · 12 assertion</span>
+        </div>
+        <div class="tcmatrix__grid">
+          {testCases.map((t) => (
+            <div class="tccard">
+              <div><b class="mono">{t.id}</b><span>{t.teks}</span></div>
+              <span class="tccard__pass mono">PASS</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. IDENTITAS PENGEMBANG ============ -->
+  <section class="section" id="pengembang">
+    <header class="section__head">
+      <span class="section__eyebrow">Identitas Pengembang</span>
+      <h2>Disusun sebagai Tugas Mata Kuliah Struktur Data</h2>
+      <p>Website Toko Byte ini dikembangkan untuk memenuhi tugas praktikum Struktur Data.</p>
+    </header>
+
+    <div class="bento">
+      <article class="bento__card" style="grid-column:1/-1">
+        <div class="bento__top">
+          <span class="bento__tag"><svg class="i" style="width:16px;height:16px"><use href="#i-user" /></svg>Pengembang</span>
+          <span class="mono bento__tc">Kelas 2025B</span>
+        </div>
+        <h3>Muhammad Abdee Nur Fatih</h3>
+        <p>NIM 25050974063 · Mata Kuliah Struktur Data · Kelas 2025B.</p>
+        <div class="kv-list">
+          <div><span>Nama</span><b>Muhammad Abdee Nur Fatih</b></div>
+          <div><span>NIM</span><b>25050974063</b></div>
+          <div><span>Mata Kuliah</span><b>Struktur Data</b></div>
+          <div><span>Kelas</span><b>2025B</b></div>
+        </div>
+        <div class="bento__foot"><span class="mono">Tugas Kuliah · Array · Pointer · Struct</span><svg class="i" style="color:var(--tertiary)"><use href="#i-check" /></svg></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ 6. CTA ============ -->
+  <section class="cta">
+    <div class="cta__glow" aria-hidden="true"></div>
+    <div class="cta__body">
+      <span class="cta__chip"><svg class="i" style="width:16px;height:16px"><use href="#i-book" /></svg>Open Academic Sandbox · Tugas Praktikum</span>
+      <h2>Siap Memukau Penguji di Ruang Sidang?</h2>
+      <p>Jalankan simulasi langkah demi langkah sekarang, atau audit seluruh test case beserta jejak eksekusi memorinya di dashboard.</p>
+      <div class="cta__actions">
+        <a class="btn btn--lg btn--invert" href="/simulator"><svg class="i"><use href="#i-play" /></svg>Mulai Simulasi Interaktif</a>
+        <a class="btn btn--lg btn--ghostlight" href="/dashboard"><svg class="i"><use href="#i-chart" /></svg>Buka Dashboard Audit</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Micro-interaksi hero: nilai stok beraliasing berubah (ilustrasi TC-09).
+  let stok = 8;
+  const el = document.getElementById('demo-stok');
+  if (el) {
+    setInterval(() => {
+      stok = stok === 8 ? 7 : 8;
+      el.textContent = `${stok} Unit`;
+    }, 4000);
+  }
+</script>
